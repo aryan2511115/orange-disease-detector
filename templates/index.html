@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orange Disease Detection System</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.27.2/dist/axios.min.js"></script>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <span class="logo-icon">🍊</span>
+                <span>Orange Disease Detector</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link active" onclick="navigate('home')">Home</a></li>
+                <li><a href="#detection" class="nav-link" onclick="navigate('detection')">Detection</a></li>
+                <li><a href="#about" class="nav-link" onclick="navigate('about')">About</a></li>
+                <li><a href="#contact" class="nav-link" onclick="navigate('contact')">Contact</a></li>
+                <li>
+                    <select id="languageSelect" class="language-select" onchange="changeLanguage()">
+                        <option value="en">English</option>
+                        <option value="hi">हिंदी</option>
+                        <option value="mr">मराठी</option>
+                    </select>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Home Section -->
+        <section id="home-section" class="section active">
+            <div class="hero">
+                <div class="hero-content">
+                    <h1 class="i18n" data-key="home_title">AI-Powered Orange Disease Detection System</h1>
+                    <p class="i18n" data-key="home_subtitle">Detect diseases in orange fruits and leaves using advanced AI technology</p>
+                    <button class="btn btn-primary" onclick="navigate('detection')" data-key="get_started">Get Started</button>
+                </div>
+                <div class="hero-image">
+                    <div class="feature-cards">
+                        <div class="feature-card">
+                            <span class="feature-icon">🔍</span>
+                            <h3 class="i18n" data-key="feature_detection">Accurate Detection</h3>
+                            <p class="i18n" data-key="feature_detection_desc">High accuracy disease detection using transfer learning</p>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-icon">📊</span>
+                            <h3 class="i18n" data-key="feature_analysis">Quick Analysis</h3>
+                            <p class="i18n" data-key="feature_analysis_desc">Get instant predictions and severity analysis</p>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-icon">💡</span>
+                            <h3 class="i18n" data-key="feature_recommendations">Smart Recommendations</h3>
+                            <p class="i18n" data-key="feature_recommendations_desc">Personalized treatment and prevention tips</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Detection Section -->
+        <section id="detection-section" class="section">
+            <div class="detection-container">
+                <h2 class="i18n" data-key="detection_title">Disease Detection</h2>
+                <p class="i18n" data-key="detection_subtitle">Upload an image of orange leaf or fruit to detect diseases</p>
+
+                <div class="detection-layout">
+                    <!-- Upload Area -->
+                    <div class="upload-area">
+                        <div class="upload-box" id="uploadBox" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                            <div class="upload-content">
+                                <span class="upload-icon">📤</span>
+                                <h3 class="i18n" data-key="upload_text">Upload Image</h3>
+                                <p class="i18n" data-key="upload_description">Drag and drop or click to select</p>
+                                <input type="file" id="imageInput" accept="image/*" onchange="handleFileSelect(event)" hidden>
+                                <button class="btn btn-secondary" onclick="document.getElementById('imageInput').click()" data-key="choose_file">Choose File</button>
+                            </div>
+                        </div>
+
+                        <!-- Image Preview -->
+                        <div id="previewArea" class="preview-area" style="display:none;">
+                            <img id="previewImage" src="" alt="Preview">
+                            <button class="btn btn-small" onclick="resetUpload()" data-key="clear">Clear</button>
+                        </div>
+
+                        <!-- Predict Button -->
+                        <button id="predictBtn" class="btn btn-primary btn-lg" onclick="predictDisease()" style="display:none;" data-key="predict">Predict Disease</button>
+                    </div>
+
+                    <!-- Results Area -->
+                    <div id="resultsArea" class="results-area" style="display:none;">
+                        <h3 class="i18n" data-key="prediction_results">Prediction Results</h3>
+
+                        <!-- Disease Card -->
+                        <div class="disease-card">
+                            <h4 id="diseaseName" class="disease-name"></h4>
+                            <div class="confidence-meter">
+                                <div class="confidence-label">
+                                    <span class="i18n" data-key="confidence">Confidence:</span>
+                                    <span id="confidenceValue"></span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div id="confidenceBar" class="progress-fill"></div>
+                                </div>
+                            </div>
+
+                            <div class="severity-meter">
+                                <div class="severity-label">
+                                    <span class="i18n" data-key="severity">Disease Severity:</span>
+                                    <span id="severityValue"></span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div id="severityBar" class="progress-fill"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recommendations -->
+                        <div class="recommendations">
+                            <div class="recommendation-card">
+                                <h5 class="i18n" data-key="treatment">Treatment</h5>
+                                <p id="treatmentText"></p>
+                            </div>
+                            <div class="recommendation-card">
+                                <h5 class="i18n" data-key="prevention">Prevention</h5>
+                                <p id="preventionText"></p>
+                            </div>
+                            <div class="recommendation-card">
+                                <h5 class="i18n" data-key="fertilizer">Fertilizer Recommendation</h5>
+                                <p id="fertilizerText"></p>
+                            </div>
+                        </div>
+
+                        <!-- Grad-CAM Visualization -->
+                        <div id="gradcamArea" class="gradcam-area" style="display:none;">
+                            <h5 class="i18n" data-key="explainability">Explainability (Grad-CAM)</h5>
+                            <img id="gradcamImage" src="" alt="Grad-CAM">
+                            <p class="i18n" data-key="gradcam_desc">The highlighted regions show which parts of the image influenced the disease detection</p>
+                        </div>
+
+                        <!-- All Predictions -->
+                        <div class="all-predictions">
+                            <h5 class="i18n" data-key="all_predictions">All Disease Predictions</h5>
+                            <div id="predictionsChart">
+                                <canvas id="predictionChart"></canvas>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="navigate('detection')" data-key="predict_another">Predict Another Image</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about-section" class="section">
+            <div class="about-container">
+                <h2 class="i18n" data-key="about_title">About This Project</h2>
+
+                <div class="about-content">
+                    <div class="about-card">
+                        <h3 class="i18n" data-key="about_objective">Project Objective</h3>
+                        <p class="i18n" data-key="about_objective_text">
+                            This system uses advanced artificial intelligence and deep learning to detect diseases in orange fruits and leaves.
+                            It provides farmers with instant recommendations for treatment, prevention, and proper fertilizer usage.
+                        </p>
+                    </div>
+
+                    <div class="about-card">
+                        <h3 class="i18n" data-key="about_technology">Technology Stack</h3>
+                        <ul>
+                            <li><strong>Backend:</strong> Flask, Python, TensorFlow</li>
+                            <li><strong>Frontend:</strong> HTML, CSS, JavaScript</li>
+                            <li><strong>Database:</strong> MySQL</li>
+                            <li><strong>ML Models:</strong> MobileNetV2, ResNet50, EfficientNetB0 (Transfer Learning)</li>
+                            <li><strong>Explainability:</strong> Grad-CAM</li>
+                        </ul>
+                    </div>
+
+                    <div class="about-card">
+                        <h3 class="i18n" data-key="about_diseases">Detected Diseases</h3>
+                        <ul>
+                            <li>✓ Citrus Canker (बैक्टीरिया रोग)</li>
+                            <li>✓ Black Spot (काला धब्बा)</li>
+                            <li>✓ Citrus Greening / HLB (साइट्रस ग्रीनिंग)</li>
+                            <li>✓ Leaf Miner (पत्ती माइनर)</li>
+                            <li>✓ Healthy Orange Leaf (स्वस्थ पत्ती)</li>
+                        </ul>
+                    </div>
+
+                    <div class="about-card">
+                        <h3 class="i18n" data-key="about_features">Key Features</h3>
+                        <ul>
+                            <li>✓ <strong class="i18n" data-key="feature1">High Accuracy Detection</strong> - 95%+ accuracy using transfer learning</li>
+                            <li>✓ <strong class="i18n" data-key="feature2">Disease Severity Analysis</strong> - Percentage-based severity assessment</li>
+                            <li>✓ <strong class="i18n" data-key="feature3">Explainable AI</strong> - Grad-CAM visualizations</li>
+                            <li>✓ <strong class="i18n" data-key="feature4">Multilingual Support</strong> - English, Hindi, Marathi</li>
+                            <li>✓ <strong class="i18n" data-key="feature5">Prediction History</strong> - Track all predictions</li>
+                            <li>✓ <strong class="i18n" data-key="feature6">Smart Recommendations</strong> - Treatment, prevention, fertilizer</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact-section" class="section">
+            <div class="contact-container">
+                <h2 class="i18n" data-key="contact_title">Contact Us</h2>
+
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <h3 class="i18n" data-key="contact_subtitle">Get in Touch</h3>
+                        <p class="i18n" data-key="contact_text">Have questions or feedback? We'd love to hear from you!</p>
+
+                        <div class="contact-details">
+                            <div class="contact-item">
+                                <span class="contact-icon">📧</span>
+                                <div>
+                                    <h4 class="i18n" data-key="email">Email</h4>
+                                    <p>orangedisease@example.com</p>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">📱</span>
+                                <div>
+                                    <h4 class="i18n" data-key="phone">Phone</h4>
+                                    <p>+91 XXXX XXXX XX</p>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">📍</span>
+                                <div>
+                                    <h4 class="i18n" data-key="location">Location</h4>
+                                    <p>India</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form class="contact-form">
+                        <div class="form-group">
+                            <label class="i18n" data-key="name">Name</label>
+                            <input type="text" placeholder="Your Name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="i18n" data-key="email">Email</label>
+                            <input type="email" placeholder="Your Email" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="i18n" data-key="message">Message</label>
+                            <textarea placeholder="Your Message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" data-key="send_message">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Orange Disease Detection System. All rights reserved.</p>
+            <p class="i18n" data-key="footer_text">Using advanced AI for agricultural innovation</p>
+        </div>
+    </footer>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner" style="display:none;">
+        <div class="spinner"></div>
+        <p class="i18n" data-key="predicting">Predicting...</p>
+    </div>
+
+    <script src="../static/js/script.js"></script>
+</body>
+</html>

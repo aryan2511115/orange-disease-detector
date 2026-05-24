@@ -1,0 +1,12 @@
+flask
+flask-cors
+tensorflow
+numpy
+pillow
+opencv-python
+matplotlib
+mysql-connector-python
+pyjwt
+pyttsx3
+werkzeug
+
