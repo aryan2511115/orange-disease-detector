@@ -1,5 +1,6 @@
 flask
 flask-cors
+gunicorn
 tensorflow
 numpy
 pillow
@@ -9,4 +10,3 @@ mysql-connector-python
 pyjwt
 pyttsx3
 werkzeug
-
